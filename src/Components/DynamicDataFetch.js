@@ -1,94 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 
-const UserList = () => {
-    const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+function FetchUserPosts() {
+    const [userId, setUserId] = useState('');
+    const [postList, setPostList] = useState([]);
 
     useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const response = await fetch('https://jsonplaceholder.typicode.com/users');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-                const data = await response.json();
-                setUsers(data);
-                setLoading(false);
-            } catch (error) {
-                setError(error.message);
-                setLoading(false);
-            }
-        };
-
-        fetchUsers();
+        fetch('https://jsonplaceholder.typicode.com/posts')
+            .then((response) => response.json())
+            .then((data) => setPostList(data.slice(0, 5)))
+            .catch((err) => console.error('Error loading default posts:', err));
     }, []);
 
-    if (loading) {
-        return <div style={styles.loading}>Loading...</div>;
-    }
-
-    if (error) {
-        return <div style={styles.error}>Error: {error}</div>;
-    }
+    const loadUserPosts = async (id) => {
+        try {
+            const res = await fetch(`https://jsonplaceholder.typicode.com/posts?userId=${id}`);
+            const posts = await res.json();
+            setPostList(posts);
+        } catch (err) {
+            console.error('Failed to load user posts:', err);
+        }
+    };
 
     return (
-        <div style={styles.container}>
-            <h1>User List</h1>
-            <ul style={styles.userList}>
-                {users.map((user) => (
-                    <li key={user.id} style={styles.userItem}>
-                        <strong>{user.name}</strong>: {user.email}
-                    </li>
+        <div>
+            <h2>Posts by User</h2>
+            <h3>Dynamic Data Fetching</h3>
+            <input
+                type="number"
+                placeholder="Enter User ID"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+            />
+            <button onClick={() => loadUserPosts(userId)}>Fetch</button>
+            <ul>
+                {postList.map((post) => (
+                    <li key={post.id}>{post.title}</li>
                 ))}
             </ul>
-            <Link to="/" style={styles.backButton}>Back to Home</Link>
         </div>
     );
-};
+}
 
-const styles = {
-    container: {
-        textAlign: 'center',
-        marginTop: '2rem',
-        padding: '1rem',
-        borderRadius: '8px',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-        backgroundColor: '#fff',
-        maxWidth: '600px',
-        margin: '2rem auto',
-    },
-    loading: {
-        textAlign: 'center',
-        fontSize: '1.5rem',
-        marginTop: '2rem',
-    },
-    error: {
-        textAlign: 'center',
-        color: 'red',
-        marginTop: '2rem',
-    },
-    userList: {
-        listStyleType: 'none',
-        padding: 0,
-    },
-    userItem: {
-        marginBottom: '0.5rem',
-        borderBottom: '1px solid #eee',
-        padding: '0.5rem 0',
-    },
-    backButton: {
-        display: 'inline-block',
-        marginTop: '1rem',
-        padding: '0.5rem 1rem',
-        backgroundColor: '#007bff',
-        color: 'white',
-        textDecoration: 'none',
-        borderRadius: '4px',
-        fontWeight: 'bold',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    },
-};
-
-export default UserList;
+export default FetchUserPosts;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const UserDetail = () => {
+const MasterDetail = () => {
     const [userList, setUserList] = useState([]);
     const [selectedUserInfo, setSelectedUserInfo] = useState(null);
 
@@ -30,7 +30,7 @@ const UserDetail = () => {
 
     return (
         <div>
-            <h2>Users</h2>
+            <h2>Master-Detail View</h2>
             <table>
                 <thead>
                 <tr>
@@ -53,10 +53,11 @@ const UserDetail = () => {
                     <h3>Details</h3>
                     <p><strong>Name:</strong> {selectedUserInfo.name}</p>
                     <p><strong>Email:</strong> {selectedUserInfo.email}</p>
+                    <p><strong>Phone:</strong> {selectedUserInfo.phone}</p>
                 </div>
             )}
         </div>
     );
 };
 
-export default UserDetail;
+export default MasterDetail;

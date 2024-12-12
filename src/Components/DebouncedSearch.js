@@ -1,51 +1,45 @@
 import React, { useState, useEffect } from 'react';
 
-const PostList2 = () => {
-    const [posts, setPosts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+const SearchPosts = () => {
+    const [data, setData] = useState([]);
+    const [query, setQuery] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
-        const fetchPosts = async () => {
-            try {
-                const response = await fetch('https://jsonplaceholder.typicode.com/posts');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-                const data = await response.json();
-                setPosts(data);
-                setLoading(false);
-            } catch (error) {
-                setError(error.message);
-                setLoading(false);
+        const delay = setTimeout(() => {
+            if (query) {
+                setIsSearching(true);
+                fetch(`https://jsonplaceholder.typicode.com/posts?title_like=${query}`)
+                    .then((res) => res.json())
+                    .then((result) => {
+                        setData(result);
+                        setIsSearching(false);
+                    });
+            } else {
+                setData([]);
             }
-        };
+        }, 300);
 
-        fetchPosts();
-    }, []);
-
-    if (loading) {
-        return (
-            <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                <div className="spinner" style={{ fontSize: '20px' }}>Loading...</div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return <div>Error: {error}</div>;
-    }
+        return () => clearTimeout(delay);
+    }, [query]);
 
     return (
         <div>
-            <h1>Post Titles</h1>
+            <h2>Debounced Search with REST API</h2>
+            <input
+                type="text"
+                placeholder="Search posts..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+            />
+            {isSearching && <div>Searching...</div>}
             <ul>
-                {posts.map((post) => (
-                    <li key={post.id}>{post.title}</li>
+                {data.map((item) => (
+                    <li key={item.id}>{item.title}</li>
                 ))}
             </ul>
         </div>
     );
 };
 
-export default PostList2;
+export default SearchPosts;
